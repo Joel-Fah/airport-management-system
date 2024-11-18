@@ -44,6 +44,15 @@ def create_tables():
     Includes all entities: Airport, Terminal, Gate, Flight, Airline, Aircraft, Passenger, Ticket, Staff.
     """
     tables = {
+        "User": """
+            CREATE TABLE IF NOT EXISTS User (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                role TEXT NOT NULL
+            );
+        """,
         "Airport": """
             CREATE TABLE IF NOT EXISTS Airport (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

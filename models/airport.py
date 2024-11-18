@@ -4,3 +4,6 @@ class Airport:
         self.name = name
         self.location = location
         self.code = code
+        
+    def __repr__(self):
+        return f"Airport(id={self.id}, name={self.name}, location={self.location}, code={self.code})"

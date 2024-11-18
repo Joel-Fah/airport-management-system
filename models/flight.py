@@ -8,3 +8,6 @@ class Flight:
         self.arrival_time = arrival_time
         self.aircraft_id = aircraft_id
         self.airline_id = airline_id
+        
+    def __repr__(self):
+        return f"Flight(id={self.id}, flight_number={self.flight_number}, origin={self.origin}, destination={self.destination}, departure_time={self.departure_time}, arrival_time={self.arrival_time}, aircraft_id={self.aircraft_id}, airline_id={self.airline_id})"
