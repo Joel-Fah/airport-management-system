@@ -1,4 +1,7 @@
 import os
+import time
+
+from utils.constants import DEFAULT_SLEEP_TIME
 
 
 def clear_screen():
@@ -41,21 +44,6 @@ def display_menu(menu_title, options):
     # Draw the bottom border
     print("+" + "-" * box_width + "+")
 
-    # Ask for user input
-    try:
-        choice = int(input("Enter your choice (1-3) >>> ").strip())
-        if choice == 1:
-            return "login"
-        elif choice == 2:
-            return "register"
-        elif choice == 3:
-            return "exit"
-        else:
-            raise ValueError
-    except ValueError:
-        print("Invalid choice! Please enter a number between 1 and 3.")
-        return display_menu(menu_title, options)  # Recurse to display the menu again for valid input.
-
 
 def display_menu_title(menu_title):
     """Displays a beautifully styled menu title.
@@ -73,3 +61,64 @@ def display_menu_title(menu_title):
     print("+" + "-" * box_width + "+")
     print("|" + menu_title.center(box_width) + "|")
     print("+" + "-" * box_width + "+")
+
+
+def user_management_menu(user_data):
+    """
+    Sub menu to manage user related actions such as edit info, delete user, logout
+    """
+
+    # Clear the screen before showing the menu
+    clear_screen()
+
+    username = user_data['username']
+
+    while True:
+        # display user management menu
+        display_menu(
+            f" AMS - User management ({username})",
+            [
+                "Edit profile info",
+                "Delete user",
+            ]
+        )
+
+        # Ask for user input
+        user_action = int(input("Enter your choice (1-3) >>> ").strip())
+
+        if user_action == 1:
+            # Update user record
+            pass
+        elif user_action == 2:
+            # Delete user record
+            pass
+        else:
+            print("Invalid choice! Please enter a number between 1 and 3.")
+
+def main_menu(user_data):
+    """Displays the main menu of the application."""
+    while True:
+        clear_screen()
+
+        # Display main menu
+        display_menu(
+            "Main Menu",
+            [
+                "Airport Management",
+                "User Management",
+                "Logout"
+            ]
+        )
+
+        user_action = int(input("Select an option >>> ").strip())
+
+        if user_action == 1:
+            # Handle Option 1
+            pass
+        elif user_action == 2:
+            user_management_menu(user_data)
+        elif user_action == 3:
+            print("Logging out...")
+            break
+        else:
+            print("Invalid choice. Please try again.")

@@ -1,10 +1,12 @@
 import hashlib
 import re
 import sqlite3
+import time
 from enum import Enum
 
+from .constants import DEFAULT_SLEEP_TIME
 from .db_utils import connect_to_db, close_connection
-from .utils import display_menu_title
+from .utils import display_menu_title, clear_screen, main_menu
 
 
 class Role(Enum):
@@ -64,7 +66,7 @@ def validate_role(role):
     Returns:
         bool: True if the role is valid, else False.
     """
-    return role in Role.__members__
+    return role in [r.value for r in Role]
 
 
 def hash_password(password):
@@ -79,6 +81,9 @@ def register_user():
         ValueError: If the username is already taken.
         ValueError: If the provided role is invalid.
     """
+
+    # Clear the screen before showing the menu
+    clear_screen()
 
     # Prompt the user to enter their username, email, password, and select role
     display_menu_title("Register")
@@ -134,6 +139,12 @@ def register_user():
         cursor.execute(query, (username, email, hashed_password, role.value))
         connection.commit()
         print(f"User '{username}' registered successfully.")
+
+        # small delay before proceeding
+        time.sleep(DEFAULT_SLEEP_TIME)
+
+        # Login user
+        login_user()
     except sqlite3.Error as e:
         print(f"Error registering user: {e}")
     finally:
@@ -149,6 +160,8 @@ def login_user():
     Raises:
         ValueError: If the username or password is incorrect.
     """
+    # Clear the screen before showing the menu
+    clear_screen()
 
     # Prompt the user to enter their username and password
     display_menu_title("Login")
@@ -187,7 +200,10 @@ def login_user():
             "role": user[3],
         }
         print(f"Logged in as '{user_data['username']}' ({user_data['role']})")
-        return user_data
+
+        # Go to main menu
+        main_menu(user_data)
+        # return user_data
     except sqlite3.Error as e:
         print(f"Error logging in: {e}")
     finally:

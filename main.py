@@ -1,34 +1,48 @@
 # Main entry point for the application
 import time
 
+from utils.constants import DEFAULT_SLEEP_TIME
 from utils.db_utils import create_tables
-from utils.utils import display_menu
+from utils.utils import display_menu, clear_screen
 from utils.logging_utils import register_user, login_user
+
+def initialise_system():
+    """
+    Initialises the project's database, ensuring the tables are created and ready to use upfront.
+    """
+    print("Initializing the Airport Management System...")
+
+    # Create tables (if not already created)
+    create_tables()
+
+    # small delay before proceeding
+    time.sleep(DEFAULT_SLEEP_TIME / 3)
 
 def main():
     """Main entry point of the application."""
-    print("Initializing the Airport Management System...")
-
-    # Step 1: Create tables (if not already created)
-    create_tables()
-
-    # small delay
-    time.sleep(1)
-    
-    # Step 2: Main program loop
+    # Main program loop
     while True:
-        user_action = display_menu(
-            " Airport Management System ",
+        display_menu(
+            "Welcome to Airport Management System. Login or Register",
             ["Login", "Register", "Exit"]
         )
 
-        if user_action == "login":
+        # Ask for user input
+        user_action = int(input("Enter your choice (1-3) >>> ").strip())
+
+        if user_action == 1:
             login_user()
-        elif user_action == "register":
+            time.sleep(DEFAULT_SLEEP_TIME)
+        elif user_action == 2:
             register_user()
-        elif user_action == "exit":
+        elif user_action == 3:
             print("\nThank you for using the Airport Management System. Goodbye!")
             break
+        else:
+            print("Invalid choice! Please enter a number between 1 and 3.")
+            time.sleep(1)
+
 
 if __name__ == "__main__":
+    initialise_system()
     main()
