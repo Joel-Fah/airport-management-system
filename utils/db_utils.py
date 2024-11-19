@@ -3,7 +3,7 @@
 import sqlite3
 
 # Database connection utilities
-def connect_to_db(db_path="data/database.db"):
+def connect_to_db(db_path="data/database.sqlite3"):
     """
     Establishes a connection to the SQLite3 database.
     
@@ -43,7 +43,17 @@ def create_tables():
     Creates the necessary tables for the system in the database.
     Includes all entities: Airport, Terminal, Gate, Flight, Airline, Aircraft, Passenger, Ticket, Staff.
     """
+    
     tables = {
+        "User": """
+            CREATE TABLE IF NOT EXISTS User (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                role TEXT NOT NULL
+            );
+        """,
         "Airport": """
             CREATE TABLE IF NOT EXISTS Airport (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

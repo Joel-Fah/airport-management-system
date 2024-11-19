@@ -5,3 +5,6 @@ class Ticket:
         self.passenger_id = passenger_id
         self.flight_id = flight_id
         self.seat_number = seat_number
+        
+    def __repr__(self):
+        return f"Ticket(id={self.id}, ticket_number={self.ticket_number}, passenger_id={self.passenger_id}, flight_id={self.flight_id}, seat_number={self.seat_number})"
