@@ -1,6 +1,7 @@
 import os
 import time
 
+from services.user_service import update_user_record, display_users, delete_user_record
 from utils.constants import DEFAULT_SLEEP_TIME
 
 
@@ -72,45 +73,56 @@ def user_management_menu(user_data):
     clear_screen()
 
     username = user_data['username']
+    menu_title = f"AMS - User management ({username})"
+    options = [
+        "List All users",
+        "Edit profile info",
+        "Delete current user",
+        "Back",
+    ]
 
     while True:
         # display user management menu
-        display_menu(
-            f" AMS - User management ({username})",
-            [
-                "Edit profile info",
-                "Delete user",
-            ]
-        )
+        print("\n")
+        display_menu(menu_title, options)
 
         # Ask for user input
-        user_action = int(input("Enter your choice (1-3) >>> ").strip())
+        user_action = int(input(f"Enter your choice (1-{len(options)}) >>> ").strip())
 
         if user_action == 1:
-            # Update user record
-            pass
+            display_users()
+            close_input = input("Press enter to continue...")
+
+            if close_input:
+                continue
         elif user_action == 2:
-            # Delete user record
-            pass
+            update_user_record(user_data)
+        elif user_action == 3:
+            delete_user_record(user_data['id'])
+            time.sleep(DEFAULT_SLEEP_TIME)
+        elif user_action == 4:
+            break
         else:
-            print("Invalid choice! Please enter a number between 1 and 3.")
+            print(f"Invalid choice! Please enter a number between 1 and {len(options)}.")
+            time.sleep(DEFAULT_SLEEP_TIME)
+
 
 def main_menu(user_data):
     """Displays the main menu of the application."""
+    menu_title = "Main menu"
+    options = [
+        "Airport Management",
+        "User Management",
+        "Logout",
+    ]
+
     while True:
         clear_screen()
 
         # Display main menu
-        display_menu(
-            "Main Menu",
-            [
-                "Airport Management",
-                "User Management",
-                "Logout"
-            ]
-        )
+        display_menu(menu_title, options)
 
-        user_action = int(input("Select an option >>> ").strip())
+        user_action = int(input(f"Select an option (1-{len(options)}) >>> ").strip())
 
         if user_action == 1:
             # Handle Option 1
@@ -121,4 +133,40 @@ def main_menu(user_data):
             print("Logging out...")
             break
         else:
-            print("Invalid choice. Please try again.")
+            print(f"Invalid choice. Please enter a number between 1 and {len(options)}.")
+            time.sleep(DEFAULT_SLEEP_TIME)
+
+
+def display_records(records):
+    """
+    Displays records in a nicely formatted, enboxed way.
+
+    Args:
+        records (list): A list of dictionaries representing the records.
+    """
+    if not records:
+        print("No records found.")
+        return
+
+    # Get the column names from the first record
+    columns = records[0].keys()
+    column_widths = {col: max(len(col), max(len(str(record[col])) for record in records)) for col in columns}
+
+    # Calculate the width of the box
+    box_width = sum(column_widths.values()) + len(columns) * 3 + 1
+
+    # Draw the top border
+    print("+" + "-" * box_width + "+")
+
+    # Print the header
+    header = "| " + " | ".join(col.ljust(column_widths[col]) for col in columns) + " |"
+    print(header)
+    print("+" + "-" * box_width + "+")
+
+    # Print each record row by row
+    for record in records:
+        row = "| " + " | ".join(str(record[col]).ljust(column_widths[col]) for col in columns) + " |"
+        print(row)
+
+    # Draw the bottom border
+    print("+" + "-" * box_width + "+")

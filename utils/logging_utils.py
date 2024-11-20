@@ -6,7 +6,6 @@ from enum import Enum
 
 from .constants import DEFAULT_SLEEP_TIME
 from .db_utils import connect_to_db, close_connection
-from .utils import display_menu_title, clear_screen, main_menu
 
 
 class Role(Enum):
@@ -81,6 +80,7 @@ def register_user():
         ValueError: If the username is already taken.
         ValueError: If the provided role is invalid.
     """
+    from .utils import display_menu_title, clear_screen
 
     # Clear the screen before showing the menu
     clear_screen()
@@ -160,6 +160,8 @@ def login_user():
     Raises:
         ValueError: If the username or password is incorrect.
     """
+    from .utils import display_menu_title, clear_screen, main_menu
+
     # Clear the screen before showing the menu
     clear_screen()
 

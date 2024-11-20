@@ -3,7 +3,7 @@ import time
 
 from utils.constants import DEFAULT_SLEEP_TIME
 from utils.db_utils import create_tables
-from utils.utils import display_menu, clear_screen
+from utils.utils import display_menu
 from utils.logging_utils import register_user, login_user
 
 def initialise_system():

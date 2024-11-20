@@ -135,7 +135,7 @@ def create_tables():
                 terminal_id INTEGER,
                 FOREIGN KEY (terminal_id) REFERENCES Terminal(id)
             );
-        """
+        """,
     }
 
     # Connect to the database
@@ -276,14 +276,15 @@ def delete_record(table, record_id):
         close_connection(connection)
 
 
-
-def fetch_records(table, filters=None):
+def fetch_records(table, filters=None, fields="*"):
     """
-    Fetches records from a specified table, optionally filtering by specific criteria.
+    Fetches records from a specified table, optionally filtering by specific criteria and selecting specific fields.
+
     Args:
         table (str): Name of the table to fetch data from.
         filters (dict): Dictionary of column-value pairs to filter the records (optional).
-        
+        fields (str): Comma-separated string of fields to select (default is '*').
+
     Returns:
         records (list): A list of dictionaries representing the fetched records, or an empty list if none found.
     """
@@ -292,8 +293,8 @@ def fetch_records(table, filters=None):
         return []
 
     try:
-        # Base query to select all columns
-        query = f"SELECT * FROM {table}"
+        # Base query to select specified fields
+        query = f"SELECT {fields} FROM {table}"
         parameters = ()
 
         # Add WHERE clause if filters are provided
