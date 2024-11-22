@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import re
 import sqlite3
@@ -11,7 +12,7 @@ from .db_utils import connect_to_db, close_connection
 class Role(Enum):
     ADMIN = "Admin"
     STAFF = "Staff"
-    GUEST = "Guest"
+    PASSENGER = "Passenger"
 
 def validate_username(username):
     """Validates the username.
@@ -107,12 +108,12 @@ def register_user():
         print("Passwords do not match. Please try again.")
         confirm_password = input("Confirm your password >>> ").strip()
 
-    input_role = input("Select your role (Admin, Staff, Guest) >>> ").strip().capitalize()
+    input_role = input("Select your role (Admin, Staff, Passenger) >>> ").strip().capitalize()
     while not validate_role(input_role):
         print("Invalid role. Please choose from the following:")
         for role in Role:
             print(f"- {role.value.capitalize()}")
-        input_role = input("Select your role (Admin, Staff, Guest) >>> ").strip().capitalize()
+        input_role = input("Select your role (Admin, Staff, Passenger) >>> ").strip().capitalize()
     role = Role[input_role.upper()]
 
     connection = connect_to_db()
@@ -133,10 +134,10 @@ def register_user():
 
         # Insert new user
         query = """
-            INSERT INTO User (username, email, password, role)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO User (username, email, password, role, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
         """
-        cursor.execute(query, (username, email, hashed_password, role.value))
+        cursor.execute(query, (username, email, hashed_password, role.value, datetime.datetime.now(), datetime.datetime.now()))
         connection.commit()
         print(f"User '{username}' registered successfully.")
 
@@ -160,7 +161,7 @@ def login_user():
     Raises:
         ValueError: If the username or password is incorrect.
     """
-    from .utils import display_menu_title, clear_screen, main_menu
+    from .utils import display_menu_title, clear_screen, main_menu, date_formatter
 
     # Clear the screen before showing the menu
     clear_screen()
@@ -183,7 +184,7 @@ def login_user():
 
         # Verify username and password
         query = """
-            SELECT id, username, email, role
+            SELECT id, username, email, role, last_login, created_at, updated_at
             FROM User
             WHERE username = ? AND password = ?
         """
@@ -194,12 +195,24 @@ def login_user():
             print("Incorrect username or password.")
             return
 
+        # Update last login time
+        query = """
+            UPDATE User
+            SET last_login = ?
+            WHERE id = ?
+        """
+        cursor.execute(query, (date_formatter(datetime.datetime.now()), user[0]))
+        connection.commit()
+
         # Return user details
         user_data = {
             "id": user[0],
             "username": user[1],
             "email": user[2],
             "role": user[3],
+            "last_login": user[4],
+            "created_at": user[5],
+            "updated_at": user[6],
         }
         print(f"Logged in as '{user_data['username']}' ({user_data['role']})")
 

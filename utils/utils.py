@@ -1,3 +1,4 @@
+import datetime
 import os
 import time
 
@@ -84,7 +85,7 @@ def user_management_menu(user_data):
     while True:
         # display user management menu
         print("\n")
-        display_menu(menu_title, options)
+        display_menu(menu_title=menu_title, options=options)
 
         # Ask for user input
         user_action = int(input(f"Enter your choice (1-{len(options)}) >>> ").strip())
@@ -96,9 +97,9 @@ def user_management_menu(user_data):
             if close_input:
                 continue
         elif user_action == 2:
-            update_user_record(user_data)
+            update_user_record(user_data=user_data)
         elif user_action == 3:
-            delete_user_record(user_data['id'])
+            delete_user_record(user_id=user_data['id'])
             time.sleep(DEFAULT_SLEEP_TIME)
         elif user_action == 4:
             break
@@ -120,7 +121,7 @@ def main_menu(user_data):
         clear_screen()
 
         # Display main menu
-        display_menu(menu_title, options)
+        display_menu(menu_title=menu_title, options=options)
 
         user_action = int(input(f"Select an option (1-{len(options)}) >>> ").strip())
 
@@ -139,7 +140,7 @@ def main_menu(user_data):
 
 def display_records(records):
     """
-    Displays records in a nicely formatted, enboxed way.
+    Displays records in a nicely formatted, en-boxed way.
 
     Args:
         records (list): A list of dictionaries representing the records.
@@ -170,3 +171,16 @@ def display_records(records):
 
     # Draw the bottom border
     print("+" + "-" * box_width + "+")
+
+
+def date_formatter(date: datetime):
+    """
+    Converts the datetime object into an easily readable format.
+
+    Args:
+        date (datetime): The datetime object to be formatted.
+
+    Returns:
+        str: The formatted date string.
+    """
+    return time.strftime("%a. %d %b. %Y %H:%M")

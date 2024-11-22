@@ -16,15 +16,15 @@ def initialise_system():
     create_tables()
 
     # small delay before proceeding
-    time.sleep(DEFAULT_SLEEP_TIME / 3)
+    time.sleep(DEFAULT_SLEEP_TIME)
 
 def main():
     """Main entry point of the application."""
     # Main program loop
     while True:
         display_menu(
-            "Welcome to Airport Management System. Login or Register",
-            ["Login", "Register", "Exit"]
+            menu_title="Welcome to Airport Management System. Login or Register",
+            options=["Login", "Register", "Exit"]
         )
 
         # Ask for user input
