@@ -372,3 +372,45 @@ def print_all_records(table):
     finally:
         close_connection(connection)
 
+def join_tables_and_selected_fields():
+    """
+    Fetches and join database tables with specific fields.
+    
+    Args:
+        table (str): Name of the table to fetch data from.
+    """
+    
+    connection = connect_to_db()
+    if not connection:
+        print("Failed to connect to the database.")
+        return
+    
+    try:
+        # promt the user input
+      table1 = input("Enter the first table name (e.g., flights): ") 
+      table2 = input("Enter the second table name (e.g., passengers): ") 
+      join_field = input(f"Enter the field to join on (e.g., flight_number): ")
+      fields_table1 = input(f"Enter the fields to select from {table1} (comma-separated): ").split(',') 
+      fields_table2 = input(f"Enter the fields to select from {table2} (comma-separated): ").split(',') 
+      # Clean up field names and construct the select clause 
+      fields_table1 = [field.strip() for field in fields_table1]
+      fields_table2 = [field.strip() for field in fields_table2]
+      select_fields = ', '.join([f"{table1}.{field}" for field in fields_table1] + [f"{table2}.{field}" for field in fields_table2]) 
+      query = f''' SELECT {select_fields} FROM {table1} JOIN {table2} ON {table1}.{join_field} = {table2}.{join_field} '''
+       # Execute the query
+      cursor = connection.cursor()
+      cursor.execute(query)
+      rows= cursor.fetchall()
+      connection.commit()
+
+      # Create a list of dictionaries from the result 
+      result = [] 
+      columns = fields_table1 + fields_table2
+      for row in rows: 
+        row_dict = dict(zip(columns, row))
+        result.append(row_dict) 
+        return result
+
+    finally:
+        close_connection(connection)
+
