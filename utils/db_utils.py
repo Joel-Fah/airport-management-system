@@ -51,7 +51,10 @@ def create_tables():
                 username TEXT UNIQUE NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
-                role TEXT NOT NULL
+                role TEXT NOT NULL,
+                last_login DATETIME,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         """,
         "Airport": """
@@ -59,7 +62,9 @@ def create_tables():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 location TEXT NOT NULL,
-                code TEXT UNIQUE NOT NULL
+                code TEXT UNIQUE NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         """,
         "Terminal": """
@@ -67,6 +72,8 @@ def create_tables():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 airport_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (airport_id) REFERENCES Airport(id)
             );
         """,
@@ -75,6 +82,8 @@ def create_tables():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 number TEXT NOT NULL,
                 terminal_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (terminal_id) REFERENCES Terminal(id)
             );
         """,
@@ -88,6 +97,8 @@ def create_tables():
                 arrival_time TEXT NOT NULL,
                 aircraft_id INTEGER NOT NULL,
                 airline_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (aircraft_id) REFERENCES Aircraft(id),
                 FOREIGN KEY (airline_id) REFERENCES Airline(id)
             );
@@ -96,7 +107,10 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS Airline (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
-                code TEXT UNIQUE NOT NULL
+                code TEXT UNIQUE NOT NULL,
+                country TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         """,
         "Aircraft": """
@@ -105,6 +119,8 @@ def create_tables():
                 model TEXT NOT NULL,
                 capacity INTEGER NOT NULL,
                 airline_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (airline_id) REFERENCES Airline(id)
             );
         """,
@@ -113,7 +129,9 @@ def create_tables():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 passport_number TEXT UNIQUE NOT NULL,
-                nationality TEXT NOT NULL
+                nationality TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         """,
         "Ticket": """
@@ -123,6 +141,8 @@ def create_tables():
                 passenger_id INTEGER NOT NULL,
                 flight_id INTEGER NOT NULL,
                 seat_number TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (passenger_id) REFERENCES Passenger(id),
                 FOREIGN KEY (flight_id) REFERENCES Flight(id)
             );
@@ -133,6 +153,8 @@ def create_tables():
                 name TEXT NOT NULL,
                 role TEXT NOT NULL,
                 terminal_id INTEGER,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (terminal_id) REFERENCES Terminal(id)
             );
         """,
@@ -375,9 +397,6 @@ def print_all_records(table):
 def join_tables_and_selected_fields():
     """
     Fetches and join database tables with specific fields.
-    
-    Args:
-        table (str): Name of the table to fetch data from.
     """
     
     connection = connect_to_db()
