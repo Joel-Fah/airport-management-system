@@ -65,7 +65,7 @@ def delete_user_record(user_id):
     Deletes the user record from the database.
 
     Args:
-        user_id (int): The ID of the user to delete.
+        user_id (int): The ID of the user to delete. 
 
     Returns:
         bool: True if the user record was deleted successfully, else False.
