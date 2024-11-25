@@ -121,7 +121,7 @@ def delete_record_airport():
         time.sleep(DEFAULT_SLEEP_TIME)
 
 
-def display_menu__airport():
+def display_menu_airport():
     """Displays the airport management menu."""
     from utils.utils import display_menu
 
