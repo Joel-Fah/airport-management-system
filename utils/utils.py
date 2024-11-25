@@ -1,7 +1,7 @@
-import datetime
 import os
 import time
 
+from services.airport_service import display_menu__airport
 from services.user_service import update_user_record, display_users, delete_user_record
 from utils.constants import DEFAULT_SLEEP_TIME
 
@@ -126,8 +126,7 @@ def main_menu(user_data):
         user_action = int(input(f"Select an option (1-{len(options)}) >>> ").strip())
 
         if user_action == 1:
-            # Handle Option 1
-            pass
+            display_menu__airport()
         elif user_action == 2:
             user_management_menu(user_data)
         elif user_action == 3:
@@ -171,16 +170,3 @@ def display_records(records):
 
     # Draw the bottom border
     print("+" + "-" * box_width + "+")
-
-
-def date_formatter(date: datetime):
-    """
-    Converts the datetime object into an easily readable format.
-
-    Args:
-        date (datetime): The datetime object to be formatted.
-
-    Returns:
-        str: The formatted date string.
-    """
-    return time.strftime("%a. %d %b. %Y %H:%M")
