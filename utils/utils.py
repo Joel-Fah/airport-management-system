@@ -170,9 +170,6 @@ def display_records(records):
         print(row)
 
     # Draw the bottom border
-<<<<<<< HEAD
-    print("+" + "-" * box_width + "+")
-=======
     print("+" + "-" * box_width + "+")
 
 
@@ -187,4 +184,3 @@ def date_formatter(date: datetime):
         str: The formatted date string.
     """
     return time.strftime("%a. %d %b. %Y %H:%M")
->>>>>>> d190a376d619c691dd7bc7bea2918d5b9d26dd21
