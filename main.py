@@ -6,7 +6,6 @@ from utils.db_utils import create_tables
 from utils.utils import display_menu
 from utils.logging_utils import register_user, login_user
 from services.service_menu import services_main_menu
-
 def initialise_system():
     """
     Initialises the project's database, ensuring the tables are created and ready to use upfront.
