@@ -5,7 +5,7 @@ from utils.constants import DEFAULT_SLEEP_TIME
 from utils.db_utils import create_tables
 from utils.utils import display_menu
 from utils.logging_utils import register_user, login_user
-from services.service _menu import servi
+from services.service_menu import services_main_menu
 
 def initialise_system():
     """
