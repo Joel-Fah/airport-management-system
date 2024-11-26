@@ -41,7 +41,7 @@ def close_connection(connection):
 def create_tables():
     """
     Creates the necessary tables for the system in the database.
-    Includes all entities: Airport, Terminal, Gate, Flight, Airline, Aircraft, Passenger, Ticket, Staff.
+    Includes all entities: Airport, Terminal, Gate, Flight, Passenger, Ticket, Staff.
     """
     
     tables = {
@@ -95,33 +95,10 @@ def create_tables():
                 destination TEXT NOT NULL,
                 departure_time TEXT NOT NULL,
                 arrival_time TEXT NOT NULL,
-                aircraft_id INTEGER NOT NULL,
-                airline_id INTEGER NOT NULL,
+                gate_id INTEGER UNIQUE,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (aircraft_id) REFERENCES Aircraft(id),
-                FOREIGN KEY (airline_id) REFERENCES Airline(id)
-            );
-        """,
-        "Airline": """
-            CREATE TABLE IF NOT EXISTS Airline (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                code TEXT UNIQUE NOT NULL,
-                country TEXT NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-        """,
-        "Aircraft": """
-            CREATE TABLE IF NOT EXISTS Aircraft (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                model TEXT NOT NULL,
-                capacity INTEGER NOT NULL,
-                airline_id INTEGER NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (airline_id) REFERENCES Airline(id)
+                FOREIGN KEY (gate_id) REFERENCES Gate(id)
             );
         """,
         "Passenger": """
@@ -130,8 +107,10 @@ def create_tables():
                 name TEXT NOT NULL,
                 passport_number TEXT UNIQUE NOT NULL,
                 nationality TEXT NOT NULL,
+                flight_id INTEGER NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (flight_id) REFERENCES Flight(id)
             );
         """,
         "Ticket": """
