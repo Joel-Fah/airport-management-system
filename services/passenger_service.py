@@ -26,12 +26,14 @@ def add_new_passenger_to_flight(flight_id: int):
     name = input("Enter passenger name >>> ").strip()
     passport = input("Enter passenger passport >>> ").strip()
     nationality = input("Enter passenger nationality >>> ").strip()
+    ticket_id=input("Enter passenger's  ticket >>> ").strip()
 
     # Prepare the passenger data
     passenger_data = {
         "name": name,
         "passport": passport,
         "nationality": nationality,
+        "ticket_id":ticket_id,
         "created_at": datetime.datetime.now(),
         "updated_at": datetime.datetime.now()
     }
@@ -70,10 +72,12 @@ def update_passenger():
         new_name = input("Enter new name (leave blank to keep current) >>> ").strip()
         new_passport = input("Enter new passport (leave blank to keep current) >>> ").strip
         new_nationality = input("Enter new nationality (leave blank to keep current) >>> ").strip()
-
+        new_ticket_id=input("Enter new ticket id (leave blank to keep current) >>> ").strip()
+  
         new_data = {
             "name": new_name if new_name else passenger_record["name"],
             "passport": new_passport if new_passport else passenger_record["passport"],
+            "ticket_id":new_ticket_id if new_ticket_id else passenger_record["ticket_id"],
             "nationality": new_nationality if new_nationality else passenger_record["nationality"],
             "updated_at": datetime.datetime.now()
         }
