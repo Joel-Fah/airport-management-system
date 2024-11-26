@@ -107,22 +107,23 @@ def create_tables():
                 name TEXT NOT NULL,
                 passport_number TEXT UNIQUE NOT NULL,
                 nationality TEXT NOT NULL,
+                ticket_id  INTEGER NOT NULL,
                 flight_id INTEGER NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (flight_id) REFERENCES Flight(id)
+                FOREIGN KEY (ticket_id) REFERENCES Ticket(id)
             );
         """,
         "Ticket": """
             CREATE TABLE IF NOT EXISTS Ticket (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ticket_number TEXT UNIQUE NOT NULL,
-                passenger_id INTEGER NOT NULL,
+                passenger_name text NOT NULL,
                 flight_id INTEGER NOT NULL,
                 seat_number TEXT NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (passenger_id) REFERENCES Passenger(id),
                 FOREIGN KEY (flight_id) REFERENCES Flight(id)
             );
         """,
@@ -376,12 +377,6 @@ def print_all_records(table):
 def join_tables_and_selected_fields():
     """
     Fetches and join database tables with specific fields.
-<<<<<<< HEAD
-    
-    Args:
-        table (str): Name of the table to fetch data from.
-=======
->>>>>>> upstream/main
     """
     
     connection = connect_to_db()
