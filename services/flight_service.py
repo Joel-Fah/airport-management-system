@@ -6,18 +6,37 @@ from utils.constants import DEFAULT_SLEEP_TIME
 # Globals
 FLIGHT_TABLE_NAME = "Flight"
 FLIGHT_DISPLAY_FIELDS = "id, flight_number, origin, destination, departure_time, arrival_time, created_at, updated_at"
+FLIGHTS_DISPLAY_FIELDS = "Id, flight_number, origin, destination, departure_time, arrival_time"
 
 
 def display_records_flight(gate_id: int):
-    """Displays all flights in the database."""
+    """
+    Displays all flights in the database.
+
+    Args:
+        gate_id (int):  The gate id of the flight's gate
+    """
     from utils.db_utils import fetch_records
     from utils.utils import display_records
 
-    # Fetch all flights from the database
+    # Fetch all flights of specific gate from the database
     flights = fetch_records(table=FLIGHT_TABLE_NAME, fields=FLIGHT_DISPLAY_FIELDS, filters={"gate_id": gate_id})
     print("\n")
 
     # Display the flights
+    display_records(flights)
+
+
+def display_all_records_flights():
+    """Displays all registered flight records in the database."""
+    from utils.db_utils import fetch_records
+    from utils.utils import display_records
+
+    # Fetch all flights from the database
+    flights = fetch_records(table=FLIGHT_TABLE_NAME, fields=FLIGHTS_DISPLAY_FIELDS)
+    print("\n")
+
+    # Display flights
     display_records(flights)
 
 

@@ -1,9 +1,9 @@
-import datetime
 import os
 import time
 
 from services.airport_service import display_menu_airport
-from services.user_service import update_user_record, display_users, delete_user_record
+from services.flight_service import display_all_records_flights
+from services.user_service import update_user_record, display_all_records_user, delete_user_record, display_user_record
 from utils.constants import DEFAULT_SLEEP_TIME
 
 
@@ -71,15 +71,19 @@ def user_management_menu(user_data):
     Sub menu to manage user related actions such as edit info, delete user, logout
     """
 
-    # Clear the screen before showing the menu
-    clear_screen()
-
     username = user_data['username']
+    role = user_data['role']
+
     menu_title = f"AMS - User management ({username})"
     options = [
         "List All users",
         "Edit profile info",
         "Delete current user",
+        "Back",
+    ] if role != 'Passenger' else [
+        "View profile info",
+        "Edit profile info",
+        "Delete account",
         "Back",
     ]
 
@@ -92,9 +96,12 @@ def user_management_menu(user_data):
         user_action = int(input(f"Enter your choice (1-{len(options)}) >>> ").strip())
 
         if user_action == 1:
-            display_users()
-            close_input = input("Press enter to continue...")
+            if role != 'Passenger':
+                display_all_records_user()
+            else:
+                display_user_record(user_data=user_data)
 
+            close_input = input("Press enter to continue...")
             if close_input:
                 continue
         elif user_action == 2:
@@ -111,9 +118,12 @@ def user_management_menu(user_data):
 
 def main_menu(user_data):
     """Displays the main menu of the application."""
+    # Get user role
+    role = user_data['role']
+
     menu_title = "Main menu"
     options = [
-        "Airport Management",
+        "Airport Management" if role != 'Passenger' else "View available flights",
         "User Management",
         "Logout",
     ]
@@ -127,7 +137,13 @@ def main_menu(user_data):
         user_action = int(input(f"Select an option (1-{len(options)}) >>> ").strip())
 
         if user_action == 1:
-            display_menu_airport()
+            if role != 'Passenger':
+                display_menu_airport()
+            else:
+                display_all_records_flights()
+                close_input = input("Press enter to proceed...")
+                if close_input:
+                    continue
         elif user_action == 2:
             user_management_menu(user_data)
         elif user_action == 3:
@@ -170,21 +186,4 @@ def display_records(records):
         print(row)
 
     # Draw the bottom border
-<<<<<<< HEAD
     print("+" + "-" * box_width + "+")
-=======
-    print("+" + "-" * box_width + "+")
-
-
-def date_formatter(date: datetime):
-    """
-    Converts the datetime object into an easily readable format.
-
-    Args:
-        date (datetime): The datetime object to be formatted.
-
-    Returns:
-        str: The formatted date string.
-    """
-    return time.strftime("%a. %d %b. %Y %H:%M")
->>>>>>> d190a376d619c691dd7bc7bea2918d5b9d26dd21

@@ -9,6 +9,35 @@ from utils.logging_utils import validate_username, validate_email
 # Globals
 USER_TABLE_NAME = "User"
 
+def display_user_record(user_data):
+    """
+    Displays the user record in the database.
+
+    Args:
+        user_data (dict): User details to update.
+
+    Returns:
+        bool: True if the user record was updated successfully, else False.
+    """
+    from utils.utils import display_menu_title
+    from utils.utils import display_records
+
+    # Display the user details
+    display_menu_title("Profile information")
+    print("\n")
+    display_records(records=[user_data])
+
+def display_all_records_user():
+    """
+    Displays all the users in the database.
+    """
+    from utils.utils import display_records
+
+    fields = "id, username, email, role, last_login"
+
+    users = fetch_records(table=USER_TABLE_NAME, fields=fields)
+    print("\n")
+    display_records(records=users)
 
 def update_user_record(user_data):
     """
@@ -20,17 +49,12 @@ def update_user_record(user_data):
     Returns:
         bool: True if the user record was updated successfully, else False.
     """
-    from utils.utils import clear_screen, display_menu_title
+    from utils.utils import display_menu_title
     from utils.utils import display_records
-
-    # Clear the screen before showing the menu
-    clear_screen()
 
     # Display the user details
     display_menu_title("Edit profile info")
     print("\nCurrent user details:")
-    # print(f"Username: {user_data['username']}")
-    # print(f"Email: {user_data['email']}", end="\n\n")
     display_records(records=[user_data])
 
     # Ask for new details
@@ -74,16 +98,3 @@ def delete_user_record(user_id):
 
     # Delete the user record from the database
     return delete_record(table=USER_TABLE_NAME, record_id=user_id)
-
-
-def display_users():
-    """
-    Displays all the users in the database.
-    """
-    from utils.utils import display_records
-
-    fields = "id, username, email, role, last_login"
-
-    users = fetch_records(table=USER_TABLE_NAME, fields=fields)
-    print("\n")
-    display_records(records=users)
