@@ -11,7 +11,7 @@ from validation import *
 class Role(Enum):
     ADMIN = "Admin"
     STAFF = "Staff"
-    GUEST = "Guest"
+    PASSENGER = "Passenger"
 
 
 def register_user():
@@ -49,12 +49,12 @@ def register_user():
         print("Passwords do not match. Please try again.")
         confirm_password = input("Confirm your password >>> ").strip()
 
-    input_role = input("Select your role (Admin, Staff, Guest) >>> ").strip().capitalize()
+    input_role = input("Select your role (Admin, Staff, Passenger) >>> ").strip().capitalize()
     while not validate_role(input_role):
         print("Invalid role. Please choose from the following:")
         for role in Role:
             print(f"- {role.value.capitalize()}")
-        input_role = input("Select your role (Admin, Staff, Guest) >>> ").strip().capitalize()
+        input_role = input("Select your role (Admin, Staff, Passenger) >>> ").strip().capitalize()
     role = Role[input_role.upper()]
 
     connection = connect_to_db()

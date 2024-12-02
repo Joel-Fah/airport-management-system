@@ -1,8 +1,6 @@
 import hashlib
 import re
 
-from utils.logging_utils import Role
-
 
 def validate_username(username):
     """Validates the username.
@@ -58,6 +56,8 @@ def validate_role(role):
     Returns:
         bool: True if the role is valid, else False.
     """
+    from utils.logging_utils import Role
+
     return role in [r.value for r in Role]
 
 
