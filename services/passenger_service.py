@@ -5,20 +5,23 @@ from utils.constants import DEFAULT_SLEEP_TIME
 from utils.utils import display_records
 
 PASSENGER_TABLE_NAME = "Passenger"
+PASSENGER_DISPLAY_FIELDS = "id, name, passport_number, nationality, created, updated_at"
 
 
-def display_flight_passengers(flight_id: int):
+def display_records_passenger(flight_id: int):
     """Displays all passengers in the database."""
     from utils.db_utils import fetch_records
 
     # Fetch all passengers from the database
-    passengers = fetch_records(PASSENGER_TABLE_NAME)
+    passengers = fetch_records(table=PASSENGER_TABLE_NAME, fields=PASSENGER_DISPLAY_FIELDS,
+                               filters={"flight_id": flight_id})
     print("\n")
 
     # Display the passengers
-    display_records(passengers)
+    display_records(records=passengers)
 
-def add_new_passenger_to_flight(flight_id: int):
+
+def add_record_passenger(flight_id: int):
     """Adds a new passenger to the database."""
     from utils.db_utils import insert_record
 
@@ -30,26 +33,27 @@ def add_new_passenger_to_flight(flight_id: int):
     # Prepare the passenger data
     passenger_data = {
         "name": name,
-        "passport": passport,
+        "passport_number": passport,
         "nationality": nationality,
+        "flight_id": flight_id,
         "created_at": datetime.datetime.now(),
         "updated_at": datetime.datetime.now()
     }
 
     # Insert the passenger record into the database
     insert_record(table=PASSENGER_TABLE_NAME, data=passenger_data)
-
-    print("\nPassenger added successfully!")
     time.sleep(DEFAULT_SLEEP_TIME)
 
-def update_passenger():
+
+def update_record_passenger(flight_id: int):
     """Updates a passenger record in the database."""
     from utils.db_utils import fetch_records, update_record
     from utils.utils import display_records
 
     # Fetch all passengers from the database
-    passengers = fetch_records(table=PASSENGER_TABLE_NAME)
-    display_records(passengers)
+    passengers = fetch_records(table=PASSENGER_TABLE_NAME, fields=PASSENGER_DISPLAY_FIELDS,
+                               filters={"flight_id": flight_id})
+    display_records(records=passengers)
 
     # Ask for the passenger ID to update
     passenger_id = int(input("Enter the ID of the passenger to update >>> ").strip())
@@ -73,7 +77,7 @@ def update_passenger():
 
         new_data = {
             "name": new_name if new_name else passenger_record["name"],
-            "passport": new_passport if new_passport else passenger_record["passport"],
+            "passport_number": new_passport if new_passport else passenger_record["passport"],
             "nationality": new_nationality if new_nationality else passenger_record["nationality"],
             "updated_at": datetime.datetime.now()
         }
@@ -84,14 +88,16 @@ def update_passenger():
         print("\nPassenger updated successfully!")
         time.sleep(DEFAULT_SLEEP_TIME)
 
-def delete_passenger_record():
+
+def delete_passenger_record(flight_id: int):
     """
     Deletes the passenger record from the database.
     """
     from utils.db_utils import delete_record, fetch_records
 
     # Fetch all passengers from the database
-    passengers = fetch_records(table=PASSENGER_TABLE_NAME)
+    passengers = fetch_records(table=PASSENGER_TABLE_NAME, fields=PASSENGER_DISPLAY_FIELDS,
+                               filters={"flight_id": flight_id})
 
     # Display the passengers
     display_records(records=passengers)
@@ -102,10 +108,7 @@ def delete_passenger_record():
     if next((passenger for passenger in passengers if passenger["id"] == passenger_id), None):
         # Delete the passenger record from the database
         delete_record(table=PASSENGER_TABLE_NAME, record_id=passenger_id)
-
-        print("\nPassenger deleted successfully!")
         time.sleep(DEFAULT_SLEEP_TIME)
     else:
         print("\nPassenger not found!")
         time.sleep(DEFAULT_SLEEP_TIME)
-
