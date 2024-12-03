@@ -159,7 +159,7 @@ def login_user():
         print(f"Logged in as '{user_data['username']}' ({user_data['role']})")
 
         # Go to main menu
-        main_menu(user_data)
+        main_menu(user_data=user_data)
         # return user_data
     except sqlite3.Error as e:
         print(f"Error logging in: {e}")

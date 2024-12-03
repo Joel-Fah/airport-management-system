@@ -15,10 +15,11 @@ def clear_screen():
         os.system('clear')
 
 
-def display_menu(menu_title, options):
+def display_menu(menu_title, options, clear_scr=True):
     """Displays a beautifully styled menu and asks the user to choose an action.
 
     Args:
+        clear_scr: bool: Clear the screen before showing the menu.
         menu_title (str): The title of the menu.
         options (list): A list of strings representing the menu options.
 
@@ -30,7 +31,8 @@ def display_menu(menu_title, options):
     """
 
     # Clear the screen before showing the menu
-    clear_screen()
+    if clear_scr:
+        clear_screen()
 
     # Calculate the width of the box
     box_width = max(len(menu_title), max(len(opt) for opt in options) + 8)  # 8 accounts for padding and numbering.
@@ -48,14 +50,16 @@ def display_menu(menu_title, options):
     print("+" + "-" * box_width + "+")
 
 
-def display_menu_title(menu_title):
+def display_menu_title(menu_title, clear_scr=True):
     """Displays a beautifully styled menu title.
 
     Args:
+        clear_scr (bool): Clear the screen before showing the menu.
         menu_title (str): The title of the menu.
     """
     # Clear the screen before showing the menu
-    clear_screen()
+    if clear_scr:
+        clear_screen()
 
     # Calculate the width of the box
     box_width = len(menu_title) + 8  # 8 accounts for padding.
@@ -140,10 +144,7 @@ def main_menu(user_data):
             if role != 'Passenger':
                 display_menu_airport()
             else:
-                display_all_records_flights()
-                close_input = input("Press enter to proceed...")
-                if close_input:
-                    continue
+                display_all_records_flights(passenger_record=user_data)
         elif user_action == 2:
             user_management_menu(user_data)
         elif user_action == 3:

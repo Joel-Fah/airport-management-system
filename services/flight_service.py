@@ -1,6 +1,7 @@
 import datetime
 import time
 
+from services.ticket_service import display_records_ticket
 from utils.constants import DEFAULT_SLEEP_TIME
 
 # Globals
@@ -27,10 +28,11 @@ def display_records_flight(gate_id: int):
     display_records(flights)
 
 
-def display_all_records_flights():
+def display_all_records_flights(passenger_record: dict):
     """Displays all registered flight records in the database."""
     from utils.db_utils import fetch_records
-    from utils.utils import display_records
+    from utils.utils import display_records, display_menu
+    from services.ticket_service import book_ticket
 
     # Fetch all flights from the database
     flights = fetch_records(table=FLIGHT_TABLE_NAME, fields=FLIGHTS_DISPLAY_FIELDS)
@@ -38,6 +40,44 @@ def display_all_records_flights():
 
     # Display flights
     display_records(flights)
+
+    # Display menu to book ticket, view booked tickets or go back
+    menu_title = "Ticket Booking"
+    options = [
+        "Book a ticket",
+        "View booked tickets",
+        "Back"
+    ]
+
+    while True:
+        # display ticket booking menu
+        print("\n")
+        display_menu(menu_title=menu_title, options=options, clear_scr=False)
+
+        # Ask for user input
+        user_action = int(input(f"Enter your choice (1-{len(options)}) >>> ").strip())
+
+        if user_action == 1:
+            # Prompt user to select a flight to book a ticket
+            flight_id = input("Enter the ID of a flight to book a ticket (Press Enter to cancel) >>> ").strip()
+
+            # Check if the user entered a valid flight ID
+            if next((flight for flight in flights if flight["id"] == int(flight_id)), None):
+                book_ticket(user_record_passenger=passenger_record, flight_id=int(flight_id))
+
+                close_input = input("Press enter to continue...")
+                if close_input:
+                    continue
+        elif user_action == 2:
+            display_records_ticket(passenger_record["id"])
+            close_input = input("Press enter to continue...")
+            if close_input:
+                continue
+        elif user_action == 3:
+            break
+        else:
+            print(f"Invalid choice! Please enter a number between 1 and {len(options)}.")
+            time.sleep(DEFAULT_SLEEP_TIME)
 
 
 def add_record_flight(gate_id: int):
