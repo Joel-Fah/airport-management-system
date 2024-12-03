@@ -1,140 +1,200 @@
 import datetime
 import time
+
 from utils.constants import DEFAULT_SLEEP_TIME
-from services.flight_service import display_menu_flight
+from utils.db_utils import connect_to_db
 
-TICKET_TABLE_NAME="Ticket"
-TICKET_DISPLAY_FIELDS = "id, passenger_name,flight_id, created_at, updated_at"
+# Globals
+TICKET_TABLE_NAME = "Ticket"
+TICKET_DISPLAY_FIELDS = "id, ticket_number, seat_number, created_at, updated_at"
+INITIAL_TICKET_NUMBER = "TICKET-0001"
 
 
-def display_ticket_records(ticket_id: int):
-    """Displays all ticket in the database."""
-    from utils.utils import display_records
+def generate_ticket_number() -> str:
+    """
+    Generates a ticket number.
 
-    from utils.db_utils import fetch_records
+    Returns:
+        str: The generated ticket number.
+    """
 
-    # Fetch all ticket of the specified airport from the database
-    tickets= fetch_records(table=TICKET_TABLE_NAME, fields=TICKET_DISPLAY_FIELDS,
-                              filters={"ticket_id": ticket_id})
+    # Fetch the last ticket number from the database
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT ticket_number FROM {TICKET_TABLE_NAME} ORDER BY id DESC LIMIT 1")
+    ticket_number = cursor.fetchone()
+    connection.close()
 
-    print("\n")
-    # Display the ticket
-    display_records(records=tickets)
-
-    if tickets:
-        # Ask for user input to select ticket
-        ticket_id = input("Enter the ID of the ticket to manage (or press enter to skip) >>> ").strip()
-
-        if ticket_id:
-            # Fetch the ticket record to manage
-            ticket_record = next((ticket for ticket in tickets if ticket["id"] == int(ticket_id)), None)
-
-            if ticket_record:
-                display_menu_flight(ticket_record=ticket_record)
-        else:
-            pass
+    # Generate the new ticket number
+    if ticket_number is None:
+        return INITIAL_TICKET_NUMBER
     else:
-        time.sleep(DEFAULT_SLEEP_TIME)
+        last_ticket_number = ticket_number[0]
+        last_ticket_number = last_ticket_number.split("-")[1]
+        new_ticket_number = int(last_ticket_number) + 1
+        return f"TICKET-{str(new_ticket_number).zfill(4)}"
 
 
-def add_ticket_record(ticket_id):
-    """Adds a new ticket to the database."""
-    from utils.db_utils import insert_record
+def get_valid_seat_number():
+    """Gets a valid seat number from the user."""
+    from utils.validation import validate_seat_number
 
-    # Ask for terminal details
-    passenger_name= input("Enter passenger name >>> ").strip()
-    flight_id= input("Enter the flight id >>> ").strip()
-    seat_number= input("Enter seat number >>> ").strip()
-    ticket_number=input("Enter ticket number >>> ").strip()
+    seat_number = input("Choose a seat number (A~Z)(1~100) e.g. B22 >>> ").strip()
+    while not validate_seat_number(seat_number):
+        print("Invalid seat number. Please try again.")
+        seat_number = input("Choose a seat number (A~Z)(1~100) e.g. B22 >>> ").strip()
+    return seat_number
 
-    # Prepare the ticket data
-    ticket_data = {
-        "passenger_name": passenger_name,
+
+def book_ticket(user_record_passenger: dict, flight_id: int):
+    """
+    Books a ticket for a passenger on a flight.
+
+    Args:
+        user_record_passenger (dict): The user record of the passenger.
+        flight_id (int): The ID of the flight to book the ticket for.
+    """
+    from utils.db_utils import insert_record, fetch_records
+    from utils.utils import display_menu_title
+    from utils.validation import validate_passport_number
+
+    # Generate the ticket number
+    ticket_number = generate_ticket_number()
+
+    # Ask for passport number
+    passport_number = input("Enter passport number >>> ").strip()
+    while not validate_passport_number(passport_number):
+        print("Invalid passport number. Please enter a valid passport number.")
+        passport_number = input("Enter passenger passport number >>> ").strip()
+
+    # Nationality
+    nationality = input("Enter your nationality >>> ").strip()
+
+    # Ask for seat number
+    seat_number = get_valid_seat_number()
+
+    # Check if the seat is already booked
+    tickets = fetch_records(table=TICKET_TABLE_NAME, fields="seat_number", filters={"flight_id": flight_id})
+    booked_seats = [ticket["seat_number"] for ticket in tickets]
+
+    while seat_number in booked_seats:
+        print("Seat already booked. Please choose another seat.")
+        seat_number = get_valid_seat_number()
+
+    # Prepare the passenger data
+    passenger_data = {
+        "user_id": user_record_passenger["id"],
+        "name": user_record_passenger["username"],
+        "passport_number": passport_number,
+        "nationality": nationality,
         "flight_id": flight_id,
-        "seat_number":seat_number,
-        "ticket_number":ticket_number,
         "created_at": datetime.datetime.now(),
         "updated_at": datetime.datetime.now()
     }
 
-    # Insert the terminal record into the database
-    insert_record(table=TICKET_TABLE_NAME, data=ticket_data)
-    time.sleep(DEFAULT_SLEEP_TIME)
+    # Insert passenger record into the database
+    passenger_id = insert_record(table="Passenger", data=passenger_data)
 
+    print(f"Is this my passenger ??? >>> {passenger_id}")
 
-def update_ticket_record(ticket_id: int):
-    """Updates a ticket record in the database."""
-    from utils.db_utils import fetch_records, update_record
-    from utils.utils import display_records
-
-    # Fetch all ticket from the database
-    tickets = fetch_records(table=TICKET_TABLE_NAME, fields=TICKET_DISPLAY_FIELDS,
-                              filters={"ticket_id": ticket_id})
-
-    # Display the ticket
-    display_records(records=tickets)
-
-    # Ask for the ticket ID to update
-    ticket_id = int(input("Enter the ID of the ticket to update >>> ").strip())
-
-    # Fetch the ticket record from the database
-    ticket = next((t for t in ticket if t["id"] == ticket_id), None)
-
-    if not ticket:
-        print("Ticket not found.")
-        time.sleep(DEFAULT_SLEEP_TIME)
-        return
-
-    # Ask for data to modify
-    new_passenger_name = input("Enter new passenger name >>> ").strip()
-    if new_passenger_name == '':
-        print("pasenger name maintained")
-
-    new_flight_id=input("Enter new flight id name >>> ").strip()
-    if new_flight_id == '':
-        print(" flight id maintained")
-
-    # Prepare the new ticket data
-    new_ticket_data = {
-        "passenger_name": new_passenger_name if new_passenger_name else tickets["passenger_name"],
-        "flight id ": new_flight_id if new_flight_id else tickets["flight_id"],
+    # Prepare the ticket data
+    ticket_data = {
+        "ticket_number": ticket_number,
+        "seat_number": seat_number,
+        "passenger_id": passenger_id,
+        "flight_id": flight_id,
+        "created_at": datetime.datetime.now(),
         "updated_at": datetime.datetime.now()
     }
 
-    # Update the terminal record in the database
-    update_record(table=TICKET_TABLE_NAME, record_id=ticket_id, data=new_ticket_data )
+    # Insert the ticket record into the database
+    ticket_id = insert_record(table=TICKET_TABLE_NAME, data=ticket_data)
+
+    # Display the ticket details
+    print("\n\n")
+    display_menu_title(menu_title="Ticket booked successfully", clear_scr=False)
+    print("\n")
+    # display_records(records=[ticket_data])
+    display_ticket_info(ticket_id)
+
     time.sleep(DEFAULT_SLEEP_TIME)
 
 
-    def display_ticket_menu()->None:
-      """Displays the gate management menu."""
-    from utils.utils import display_menu
+def display_records_ticket(user_record_passenger_id: int):
+    """
+    Displays all tickets of a passenger.
 
-    sub_menu_title = f""
-    sub_options = [
-        "Display ticket",
-        "Add ticket",
-        "Update ticket",
-        "Back",
-    ]
+    Args:
+        user_record_passenger_id (dict): The user record of the passenger.
+    """
 
-    while True:
-        # Display gate management menu
-        display_menu(menu_title=sub_menu_title, options=sub_options)
+    from utils.db_utils import fetch_records
 
-        # Ask for user input
-        user_action = int(input(f"Enter your choice (1-{len(sub_options)}) >>> ").strip())
+    # Fetch the passenger with the given user ID
+    passenger_id = fetch_records(table="Passenger", fields="id", filters={"user_id": user_record_passenger_id})[0]["id"]
 
-        if user_action == 1:
-            display_ticket_records(ticket_id['id'])
-        elif user_action == 2:
-            add_ticket_record(ticket_id['id'])
-        elif user_action == 3:
-            update_ticket_record(ticket_id['id'])
-        elif user_action == 4:
-            break
-        else:
-            print(f"Invalid choice! Please enter a number between 1 and {len(sub_options)}.")
-            time.sleep(DEFAULT_SLEEP_TIME)
+    # Fetch all tickets from the database
+    tickets = fetch_records(table=TICKET_TABLE_NAME, fields=TICKET_DISPLAY_FIELDS,
+                            filters={"passenger_id": passenger_id})
+    print("\n")
+
+    # List of ticket Ids
+    ticket_ids = [ticket["id"] for ticket in tickets]
+
+    # Display the tickets
+    for ticket_id in ticket_ids:
+        display_ticket_info(ticket_id)
+        print("\n")
 
 
+def display_ticket_info(ticket_id: int):
+    """
+    Displays the ticket information along with related passenger, flight, and gate details.
+
+    Args:
+        ticket_id (int): The ID of the ticket to display.
+    """
+    from utils.utils import display_records
+
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    query = """
+    SELECT
+        Ticket.ticket_number,
+        Ticket.seat_number,
+        Passenger.name,
+        Passenger.passport_number,
+        Flight.flight_number,
+        Flight.origin,
+        Flight.destination,
+        Flight.departure_time,
+        Flight.arrival_time,
+        Gate.gate_number
+    FROM Ticket
+    JOIN Passenger ON Ticket.passenger_id = Passenger.id
+    JOIN Flight ON Ticket.flight_id = Flight.id
+    JOIN Gate ON Flight.gate_id = Gate.id
+    WHERE Ticket.id = ?
+    """
+
+    cursor.execute(query, (ticket_id,))
+    ticket_info = cursor.fetchone()
+    connection.close()
+
+    if ticket_info:
+        ticket_dict = {
+            "ticket_number": ticket_info[0],
+            "seat_number": ticket_info[1],
+            "passenger_name": ticket_info[2],
+            "passport_number": ticket_info[3],
+            "flight_number": ticket_info[4],
+            "origin": ticket_info[5],
+            "destination": ticket_info[6],
+            "departure_time": ticket_info[7],
+            "arrival_time": ticket_info[8],
+            "gate_number": ticket_info[9]
+        }
+        display_records([ticket_dict])
+    else:
+        print("No ticket found with the given ID.")
