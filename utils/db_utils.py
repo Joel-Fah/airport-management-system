@@ -80,7 +80,7 @@ def create_tables():
         "Gate": """
             CREATE TABLE IF NOT EXISTS Gate (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                number TEXT NOT NULL,
+                gate_number TEXT NOT NULL,
                 terminal_id INTEGER NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -104,12 +104,14 @@ def create_tables():
         "Passenger": """
             CREATE TABLE IF NOT EXISTS Passenger (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
                 name TEXT NOT NULL,
                 passport_number TEXT UNIQUE NOT NULL,
                 nationality TEXT NOT NULL,
                 flight_id INTEGER NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES User(id),
                 FOREIGN KEY (flight_id) REFERENCES Flight(id)
             );
         """,
@@ -277,7 +279,7 @@ def delete_record(table, record_id):
         close_connection(connection)
 
 
-def fetch_records(table, filters=None, fields="*"):
+def fetch_records(table, filters=None, fields="*") -> list:
     """
     Fetches records from a specified table, optionally filtering by specific criteria and selecting specific fields.
 

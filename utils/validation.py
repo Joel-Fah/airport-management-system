@@ -64,3 +64,31 @@ def validate_role(role):
 def hash_password(password):
     """Hashes a password using SHA-256."""
     return hashlib.sha256(password.encode()).hexdigest()
+
+
+def validate_seat_number(seat_number: str):
+    """
+    Validates the seat number.
+
+    Args:
+        seat_number (str): The seat number to validate.
+
+    Returns:
+        bool: True if the seat number is valid, else False.
+    """
+    seat_regex = r'^[A-Z]([1-9]|[1-9][0-9]|100)$'
+    return re.match(seat_regex, seat_number) is not None
+
+
+def validate_passport_number(passport_number: str):
+    """
+    Validates the passport number.
+
+    Args:
+        passport_number (str): The passport number to validate.
+
+    Returns:
+        bool: True if the passport number is valid, else False.
+    """
+    passport_regex = r'^(?:[A-Z]{2}[0-9]{7}|[A-Z0-9]{9})$'
+    return re.match(passport_regex, passport_number) is not None
