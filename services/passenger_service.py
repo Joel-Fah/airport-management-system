@@ -29,6 +29,7 @@ def add_record_passenger(flight_id: int):
     name = input("Enter passenger name >>> ").strip()
     passport = input("Enter passenger passport >>> ").strip()
     nationality = input("Enter passenger nationality >>> ").strip()
+    ticket_id=input("Enter passenger's  ticket >>> ").strip()
 
     # Prepare the passenger data
     passenger_data = {
@@ -74,7 +75,8 @@ def update_record_passenger(flight_id: int):
         new_name = input("Enter new name (leave blank to keep current) >>> ").strip()
         new_passport = input("Enter new passport (leave blank to keep current) >>> ").strip
         new_nationality = input("Enter new nationality (leave blank to keep current) >>> ").strip()
-
+        new_ticket_id=input("Enter new ticket id (leave blank to keep current) >>> ").strip()
+  
         new_data = {
             "name": new_name if new_name else passenger_record["name"],
             "passport_number": new_passport if new_passport else passenger_record["passport"],
