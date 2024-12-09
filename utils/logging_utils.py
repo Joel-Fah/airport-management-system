@@ -3,9 +3,9 @@ import sqlite3
 import time
 from enum import Enum
 
-from constants import DEFAULT_SLEEP_TIME
-from  db_utils import connect_to_db, close_connection
-from validation import *
+from utils.constants import DEFAULT_SLEEP_TIME
+from  utils.db_utils import connect_to_db, close_connection
+from  utils.validation import *
 
 
 class Role(Enum):
