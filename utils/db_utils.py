@@ -57,6 +57,20 @@ def create_tables():
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         """,
+          "Passenger": """
+            CREATE TABLE IF NOT EXISTS Passenger (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                passport_number TEXT UNIQUE NOT NULL,
+                nationality TEXT NOT NULL,
+                ticket_id  INTEGER NOT NULL,
+                flight_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (flight_id) REFERENCES Flight(id)
+                FOREIGN KEY (ticket_id) REFERENCES Ticket(id)
+            );
+        """,
         "Airport": """
             CREATE TABLE IF NOT EXISTS Airport (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,7 +94,7 @@ def create_tables():
         "Gate": """
             CREATE TABLE IF NOT EXISTS Gate (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                gate_number TEXT NOT NULL,
+                number TEXT NOT NULL,
                 terminal_id INTEGER NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -101,30 +115,16 @@ def create_tables():
                 FOREIGN KEY (gate_id) REFERENCES Gate(id)
             );
         """,
-        "Passenger": """
-            CREATE TABLE IF NOT EXISTS Passenger (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                name TEXT NOT NULL,
-                passport_number TEXT UNIQUE NOT NULL,
-                nationality TEXT NOT NULL,
-                flight_id INTEGER NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES User(id),
-                FOREIGN KEY (flight_id) REFERENCES Flight(id)
-            );
-        """,
+       
         "Ticket": """
             CREATE TABLE IF NOT EXISTS Ticket (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ticket_number TEXT UNIQUE NOT NULL,
-                passenger_id INTEGER NOT NULL,
+                passenger_name text NOT NULL,
                 flight_id INTEGER NOT NULL,
                 seat_number TEXT NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (passenger_id) REFERENCES Passenger(id),
                 FOREIGN KEY (flight_id) REFERENCES Flight(id)
             );
         """,
@@ -137,6 +137,19 @@ def create_tables():
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (terminal_id) REFERENCES Terminal(id)
+            );
+        """,
+         "Reports": """
+            CREATE TABLE IF NOT EXISTS Reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                flight_id INTEGER,
+                Passenger_id INTEGER,
+                Report_content TEXT NOT NULL,
+                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                 FOREIGN KEY (passenger_id) REFERENCES passenger(id)
+                  FOREIGN KEY (flight_id) REFERENCES flight(id)
+                
             );
         """,
     }
@@ -279,7 +292,7 @@ def delete_record(table, record_id):
         close_connection(connection)
 
 
-def fetch_records(table, filters=None, fields="*") -> list:
+def fetch_records(table, filters=None, fields="*"):
     """
     Fetches records from a specified table, optionally filtering by specific criteria and selecting specific fields.
 
