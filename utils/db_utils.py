@@ -1,27 +1,44 @@
 # db_utils.py
 
 import sqlite3
+import os
+
+# Get the root directory of the project
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Ensure the data directory exists at the root
+DATA_DIR = os.path.join(ROOT_DIR, 'data')
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+
+# Define the database path
+db_path = os.path.join(DATA_DIR, "database.sqlite3")
+
 
 # Database connection utilities
-def connect_to_db(db_path="data/database.sqlite3"):
+def connect_to_db(path=db_path, echo=True):
     """
     Establishes a connection to the SQLite3 database.
     
     Args:
-        db_path (str): Path to the database file.
+        echo (bool): Print connection status message.
+        path (str): Path to the database file.
         
     Returns:
         connection (SQLite3): SQLite3 connection object
     """
     try:
-        connection = sqlite3.connect(db_path)
-        print(f"Connected to database at {db_path}")
+        connection = sqlite3.connect(path)
+        if echo:
+            print(f"Connected to database at {path}")
         return connection
     except sqlite3.Error as e:
-        print(f"Error connecting to database: {e}")
+        if echo:
+            print(f"Error connecting to database: {e}")
         return None
 
-def close_connection(connection):
+
+def close_connection(connection, echo=True):
     """
     Closes the connection to the SQLite3 database.
 
@@ -31,7 +48,8 @@ def close_connection(connection):
     try:
         if connection:
             connection.close()
-            print("Database connection closed.")
+            if echo:
+                print("Database connection closed.")
     except sqlite3.Error as e:
         print(f"Error closing the database connection: {e}")
 
@@ -43,7 +61,7 @@ def create_tables():
     Creates the necessary tables for the system in the database.
     Includes all entities: Airport, Terminal, Gate, Flight, Passenger, Ticket, Staff.
     """
-    
+
     tables = {
         "User": """
             CREATE TABLE IF NOT EXISTS User (
@@ -63,6 +81,7 @@ def create_tables():
                 name TEXT NOT NULL,
                 location TEXT NOT NULL,
                 code TEXT UNIQUE NOT NULL,
+                image_url TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
@@ -171,7 +190,7 @@ def insert_record(table, data):
     Returns:
         ID (int): The ID of the inserted record or None if an error occurs.
     """
-    
+
     # Connect to the database
     connection = connect_to_db()
     if not connection:
@@ -196,7 +215,6 @@ def insert_record(table, data):
         return None
     finally:
         close_connection(connection)
-
 
 
 def update_record(table, record_id, new_data):
@@ -239,7 +257,6 @@ def update_record(table, record_id, new_data):
         close_connection(connection)
 
 
-
 def delete_record(table, record_id):
     """
     Deletes a record from a specified table by its ID.
@@ -251,7 +268,7 @@ def delete_record(table, record_id):
     Returns:
         status (bool): True if the deletion was successful, False otherwise.
     """
-    
+
     connection = connect_to_db()
     if not connection:
         return False
@@ -279,7 +296,7 @@ def delete_record(table, record_id):
         close_connection(connection)
 
 
-def fetch_records(table, filters=None, fields="*") -> list:
+def fetch_records(table, filters=None, fields="*", echo=True) -> list:
     """
     Fetches records from a specified table, optionally filtering by specific criteria and selecting specific fields.
 
@@ -291,7 +308,7 @@ def fetch_records(table, filters=None, fields="*") -> list:
     Returns:
         records (list): A list of dictionaries representing the fetched records, or an empty list if none found.
     """
-    connection = connect_to_db()
+    connection = connect_to_db(echo=echo)
     if not connection:
         return []
 
@@ -324,11 +341,10 @@ def fetch_records(table, filters=None, fields="*") -> list:
         print(f"Error fetching records from {table}: {e}")
         return []
     finally:
-        close_connection(connection)
+        close_connection(connection=connection, echo=echo)
 
 
 # Utility for debugging
-# db_utils.py
 
 def print_all_records(table):
     """
@@ -337,7 +353,7 @@ def print_all_records(table):
     Args:
         table (str): Name of the table to fetch data from.
     """
-    
+
     connection = connect_to_db()
     if not connection:
         print("Failed to connect to the database.")
@@ -375,42 +391,43 @@ def print_all_records(table):
     finally:
         close_connection(connection)
 
+
 def join_tables_and_selected_fields():
     """
     Fetches and join database tables with specific fields.
     """
-    
+
     connection = connect_to_db()
     if not connection:
         print("Failed to connect to the database.")
         return
-    
+
     try:
         # promt the user input
-      table1 = input("Enter the first table name (e.g., flights): ") 
-      table2 = input("Enter the second table name (e.g., passengers): ") 
-      join_field = input(f"Enter the field to join on (e.g., flight_number): ")
-      fields_table1 = input(f"Enter the fields to select from {table1} (comma-separated): ").split(',') 
-      fields_table2 = input(f"Enter the fields to select from {table2} (comma-separated): ").split(',') 
-      # Clean up field names and construct the select clause 
-      fields_table1 = [field.strip() for field in fields_table1]
-      fields_table2 = [field.strip() for field in fields_table2]
-      select_fields = ', '.join([f"{table1}.{field}" for field in fields_table1] + [f"{table2}.{field}" for field in fields_table2]) 
-      query = f''' SELECT {select_fields} FROM {table1} JOIN {table2} ON {table1}.{join_field} = {table2}.{join_field} '''
-       # Execute the query
-      cursor = connection.cursor()
-      cursor.execute(query)
-      rows= cursor.fetchall()
-      connection.commit()
+        table1 = input("Enter the first table name (e.g., flights): ")
+        table2 = input("Enter the second table name (e.g., passengers): ")
+        join_field = input(f"Enter the field to join on (e.g., flight_number): ")
+        fields_table1 = input(f"Enter the fields to select from {table1} (comma-separated): ").split(',')
+        fields_table2 = input(f"Enter the fields to select from {table2} (comma-separated): ").split(',')
+        # Clean up field names and construct the select clause
+        fields_table1 = [field.strip() for field in fields_table1]
+        fields_table2 = [field.strip() for field in fields_table2]
+        select_fields = ', '.join(
+            [f"{table1}.{field}" for field in fields_table1] + [f"{table2}.{field}" for field in fields_table2])
+        query = f''' SELECT {select_fields} FROM {table1} JOIN {table2} ON {table1}.{join_field} = {table2}.{join_field} '''
+        # Execute the query
+        cursor = connection.cursor()
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        connection.commit()
 
-      # Create a list of dictionaries from the result 
-      result = [] 
-      columns = fields_table1 + fields_table2
-      for row in rows: 
-        row_dict = dict(zip(columns, row))
-        result.append(row_dict) 
-        return result
+        # Create a list of dictionaries from the result
+        result = []
+        columns = fields_table1 + fields_table2
+        for row in rows:
+            row_dict = dict(zip(columns, row))
+            result.append(row_dict)
+            return result
 
     finally:
         close_connection(connection)
-

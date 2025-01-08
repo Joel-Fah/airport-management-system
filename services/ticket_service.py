@@ -1,5 +1,6 @@
 import datetime
 import time
+from operator import indexOf
 
 from utils.constants import DEFAULT_SLEEP_TIME
 from utils.db_utils import connect_to_db
@@ -85,7 +86,7 @@ def book_ticket(user_record_passenger: dict, flight_id: int):
     passenger_data = {
         "user_id": user_record_passenger["id"],
         "name": user_record_passenger["username"],
-        "passport_number": passport_number,
+        "passport_number": passport_number.upper(),
         "nationality": nationality,
         "flight_id": flight_id,
         "created_at": datetime.datetime.now(),
@@ -95,13 +96,11 @@ def book_ticket(user_record_passenger: dict, flight_id: int):
     # Insert passenger record into the database
     passenger_id = insert_record(table="Passenger", data=passenger_data)
 
-    print(f"Is this my passenger ??? >>> {passenger_id}")
-
     # Prepare the ticket data
     ticket_data = {
         "ticket_number": ticket_number,
         "seat_number": seat_number,
-        "passenger_id": passenger_id,
+        "passenger_id": user_record_passenger["id"],
         "flight_id": flight_id,
         "created_at": datetime.datetime.now(),
         "updated_at": datetime.datetime.now()
@@ -111,7 +110,7 @@ def book_ticket(user_record_passenger: dict, flight_id: int):
     ticket_id = insert_record(table=TICKET_TABLE_NAME, data=ticket_data)
 
     # Display the ticket details
-    print("\n\n")
+    print("\n")
     display_menu_title(menu_title="Ticket booked successfully", clear_scr=False)
     print("\n")
     # display_records(records=[ticket_data])
@@ -129,20 +128,25 @@ def display_records_ticket(user_record_passenger_id: int):
     """
 
     from utils.db_utils import fetch_records
+    from utils.utils import display_menu_title
 
     # Fetch the passenger with the given user ID
-    passenger_id = fetch_records(table="Passenger", fields="id", filters={"user_id": user_record_passenger_id})[0]["id"]
+    # passenger_id = fetch_records(table="Passenger", fields="id", filters={"user_id": user_record_passenger_id})[0]["id"]
 
     # Fetch all tickets from the database
-    tickets = fetch_records(table=TICKET_TABLE_NAME, fields=TICKET_DISPLAY_FIELDS,
-                            filters={"passenger_id": passenger_id})
+    tickets = fetch_records(table=TICKET_TABLE_NAME,
+                            filters={"passenger_id": user_record_passenger_id},)
     print("\n")
 
     # List of ticket Ids
     ticket_ids = [ticket["id"] for ticket in tickets]
 
+    display_menu_title(menu_title=f"Total tickets booked: {len(tickets)}", clear_scr=False)
+    print("\n")
+
     # Display the tickets
     for ticket_id in ticket_ids:
+        print(f"Ticket {indexOf(ticket_ids, ticket_id) + 1}")
         display_ticket_info(ticket_id)
         print("\n")
 
@@ -156,7 +160,7 @@ def display_ticket_info(ticket_id: int):
     """
     from utils.utils import display_records
 
-    connection = connect_to_db()
+    connection = connect_to_db(echo=False)
     cursor = connection.cursor()
 
     query = """

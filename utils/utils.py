@@ -1,3 +1,4 @@
+import datetime
 import os
 import time
 
@@ -6,6 +7,20 @@ from services.flight_service import display_all_records_flights
 from services.user_service import update_user_record, display_all_records_user, delete_user_record, display_user_record
 from utils.constants import DEFAULT_SLEEP_TIME
 
+
+def initialise_system():
+    """
+    Initialises the project's database, ensuring the tables are created and ready to use upfront.
+    """
+    from utils.db_utils import create_tables
+
+    print("Initializing the Airport Management System...")
+
+    # Create tables (if not already created)
+    create_tables()
+
+    # small delay before proceeding
+    time.sleep(DEFAULT_SLEEP_TIME)
 
 def clear_screen():
     """Clears the console screen."""
@@ -188,3 +203,29 @@ def display_records(records):
 
     # Draw the bottom border
     print("+" + "-" * box_width + "+")
+
+
+def timeago(dt: str) -> str:
+    """
+    Returns the time elapsed since the given datetime string.
+
+    Args:
+        dt (str): The datetime string to calculate the time elapsed since.
+
+    Returns:
+        str: The time elapsed since the given datetime string.
+    """
+    try:
+        dt = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S.%f")
+    except ValueError:
+        dt = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+
+    diff = datetime.datetime.now() - dt
+    if diff.days > 0:
+        return f"{diff.days} days ago"
+    elif diff.seconds < 60:
+        return f"{diff.seconds} secs ago"
+    elif diff.seconds < 3600:
+        return f"{diff.seconds // 60} mins ago"
+    else:
+        return f"{diff.seconds // 3600} hrs ago"
