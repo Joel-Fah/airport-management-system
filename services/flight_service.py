@@ -1,3 +1,4 @@
+      # display flight menu
 import datetime
 import time
 

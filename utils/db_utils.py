@@ -61,7 +61,7 @@ def create_tables():
     Creates the necessary tables for the system in the database.
     Includes all entities: Airport, Terminal, Gate, Flight, Passenger, Ticket, Staff.
     """
-
+    
     tables = {
         "User": """
             CREATE TABLE IF NOT EXISTS User (
@@ -158,6 +158,19 @@ def create_tables():
                 FOREIGN KEY (terminal_id) REFERENCES Terminal(id)
             );
         """,
+         "Reports": """
+            CREATE TABLE IF NOT EXISTS Reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                flight_id INTEGER,
+                Passenger_id INTEGER,
+                Report_content TEXT NOT NULL,
+                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                 FOREIGN KEY (passenger_id) REFERENCES passenger(id)
+                  FOREIGN KEY (flight_id) REFERENCES flight(id)
+                
+            );
+        """,
     }
 
     # Connect to the database
@@ -190,7 +203,7 @@ def insert_record(table, data):
     Returns:
         ID (int): The ID of the inserted record or None if an error occurs.
     """
-
+    
     # Connect to the database
     connection = connect_to_db()
     if not connection:
@@ -268,7 +281,7 @@ def delete_record(table, record_id):
     Returns:
         status (bool): True if the deletion was successful, False otherwise.
     """
-
+    
     connection = connect_to_db()
     if not connection:
         return False
@@ -353,7 +366,7 @@ def print_all_records(table):
     Args:
         table (str): Name of the table to fetch data from.
     """
-
+    
     connection = connect_to_db()
     if not connection:
         print("Failed to connect to the database.")
@@ -391,43 +404,41 @@ def print_all_records(table):
     finally:
         close_connection(connection)
 
-
 def join_tables_and_selected_fields():
     """
     Fetches and join database tables with specific fields.
     """
-
+    
     connection = connect_to_db()
     if not connection:
         print("Failed to connect to the database.")
         return
-
+    
     try:
         # promt the user input
-        table1 = input("Enter the first table name (e.g., flights): ")
-        table2 = input("Enter the second table name (e.g., passengers): ")
-        join_field = input(f"Enter the field to join on (e.g., flight_number): ")
-        fields_table1 = input(f"Enter the fields to select from {table1} (comma-separated): ").split(',')
-        fields_table2 = input(f"Enter the fields to select from {table2} (comma-separated): ").split(',')
-        # Clean up field names and construct the select clause
-        fields_table1 = [field.strip() for field in fields_table1]
-        fields_table2 = [field.strip() for field in fields_table2]
-        select_fields = ', '.join(
-            [f"{table1}.{field}" for field in fields_table1] + [f"{table2}.{field}" for field in fields_table2])
-        query = f''' SELECT {select_fields} FROM {table1} JOIN {table2} ON {table1}.{join_field} = {table2}.{join_field} '''
-        # Execute the query
-        cursor = connection.cursor()
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        connection.commit()
+      table1 = input("Enter the first table name (e.g., flights): ") 
+      table2 = input("Enter the second table name (e.g., passengers): ") 
+      join_field = input(f"Enter the field to join on (e.g., flight_number): ")
+      fields_table1 = input(f"Enter the fields to select from {table1} (comma-separated): ").split(',') 
+      fields_table2 = input(f"Enter the fields to select from {table2} (comma-separated): ").split(',') 
+      # Clean up field names and construct the select clause 
+      fields_table1 = [field.strip() for field in fields_table1]
+      fields_table2 = [field.strip() for field in fields_table2]
+      select_fields = ', '.join([f"{table1}.{field}" for field in fields_table1] + [f"{table2}.{field}" for field in fields_table2]) 
+      query = f''' SELECT {select_fields} FROM {table1} JOIN {table2} ON {table1}.{join_field} = {table2}.{join_field} '''
+       # Execute the query
+      cursor = connection.cursor()
+      cursor.execute(query)
+      rows= cursor.fetchall()
+      connection.commit()
 
-        # Create a list of dictionaries from the result
-        result = []
-        columns = fields_table1 + fields_table2
-        for row in rows:
-            row_dict = dict(zip(columns, row))
-            result.append(row_dict)
-            return result
+      # Create a list of dictionaries from the result 
+      result = [] 
+      columns = fields_table1 + fields_table2
+      for row in rows: 
+        row_dict = dict(zip(columns, row))
+        result.append(row_dict) 
+        return result
 
     finally:
         close_connection(connection)
