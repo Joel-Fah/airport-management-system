@@ -1,27 +1,44 @@
 # db_utils.py
 
 import sqlite3
+import os
+
+# Get the root directory of the project
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Ensure the data directory exists at the root
+DATA_DIR = os.path.join(ROOT_DIR, 'data')
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+
+# Define the database path
+db_path = os.path.join(DATA_DIR, "database.sqlite3")
+
 
 # Database connection utilities
-def connect_to_db(db_path="data/database.sqlite3"):
+def connect_to_db(path=db_path, echo=True):
     """
     Establishes a connection to the SQLite3 database.
     
     Args:
-        db_path (str): Path to the database file.
+        echo (bool): Print connection status message.
+        path (str): Path to the database file.
         
     Returns:
         connection (SQLite3): SQLite3 connection object
     """
     try:
-        connection = sqlite3.connect(db_path)
-        print(f"Connected to database at {db_path}")
+        connection = sqlite3.connect(path)
+        if echo:
+            print(f"Connected to database at {path}")
         return connection
     except sqlite3.Error as e:
-        print(f"Error connecting to database: {e}")
+        if echo:
+            print(f"Error connecting to database: {e}")
         return None
 
-def close_connection(connection):
+
+def close_connection(connection, echo=True):
     """
     Closes the connection to the SQLite3 database.
 
@@ -31,7 +48,8 @@ def close_connection(connection):
     try:
         if connection:
             connection.close()
-            print("Database connection closed.")
+            if echo:
+                print("Database connection closed.")
     except sqlite3.Error as e:
         print(f"Error closing the database connection: {e}")
 
@@ -57,26 +75,13 @@ def create_tables():
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         """,
-          "Passenger": """
-            CREATE TABLE IF NOT EXISTS Passenger (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                passport_number TEXT UNIQUE NOT NULL,
-                nationality TEXT NOT NULL,
-                ticket_id  INTEGER NOT NULL,
-                flight_id INTEGER NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (flight_id) REFERENCES Flight(id)
-                FOREIGN KEY (ticket_id) REFERENCES Ticket(id)
-            );
-        """,
         "Airport": """
             CREATE TABLE IF NOT EXISTS Airport (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 location TEXT NOT NULL,
                 code TEXT UNIQUE NOT NULL,
+                image_url TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
@@ -94,7 +99,7 @@ def create_tables():
         "Gate": """
             CREATE TABLE IF NOT EXISTS Gate (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                number TEXT NOT NULL,
+                gate_number TEXT NOT NULL,
                 terminal_id INTEGER NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -115,16 +120,30 @@ def create_tables():
                 FOREIGN KEY (gate_id) REFERENCES Gate(id)
             );
         """,
-       
+        "Passenger": """
+            CREATE TABLE IF NOT EXISTS Passenger (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                passport_number TEXT UNIQUE NOT NULL,
+                nationality TEXT NOT NULL,
+                flight_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES User(id),
+                FOREIGN KEY (flight_id) REFERENCES Flight(id)
+            );
+        """,
         "Ticket": """
             CREATE TABLE IF NOT EXISTS Ticket (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ticket_number TEXT UNIQUE NOT NULL,
-                passenger_name text NOT NULL,
+                passenger_id INTEGER NOT NULL,
                 flight_id INTEGER NOT NULL,
                 seat_number TEXT NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (passenger_id) REFERENCES Passenger(id),
                 FOREIGN KEY (flight_id) REFERENCES Flight(id)
             );
         """,
@@ -211,7 +230,6 @@ def insert_record(table, data):
         close_connection(connection)
 
 
-
 def update_record(table, record_id, new_data):
     """
     Updates a record in a specified table by its ID.
@@ -250,7 +268,6 @@ def update_record(table, record_id, new_data):
         return False
     finally:
         close_connection(connection)
-
 
 
 def delete_record(table, record_id):
@@ -292,7 +309,7 @@ def delete_record(table, record_id):
         close_connection(connection)
 
 
-def fetch_records(table, filters=None, fields="*"):
+def fetch_records(table, filters=None, fields="*", echo=True) -> list:
     """
     Fetches records from a specified table, optionally filtering by specific criteria and selecting specific fields.
 
@@ -304,7 +321,7 @@ def fetch_records(table, filters=None, fields="*"):
     Returns:
         records (list): A list of dictionaries representing the fetched records, or an empty list if none found.
     """
-    connection = connect_to_db()
+    connection = connect_to_db(echo=echo)
     if not connection:
         return []
 
@@ -337,11 +354,10 @@ def fetch_records(table, filters=None, fields="*"):
         print(f"Error fetching records from {table}: {e}")
         return []
     finally:
-        close_connection(connection)
+        close_connection(connection=connection, echo=echo)
 
 
 # Utility for debugging
-# db_utils.py
 
 def print_all_records(table):
     """
@@ -426,4 +442,3 @@ def join_tables_and_selected_fields():
 
     finally:
         close_connection(connection)
-

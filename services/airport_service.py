@@ -5,6 +5,7 @@ from services.terminal_service import display_menu_terminal
 from utils.constants import DEFAULT_SLEEP_TIME
 
 AIRPORT_TABLE_NAME = "Airport"
+AIRPORT_DISPLAY_FIELDS = "id, name, location, code, created_at, updated_at, image_url"
 
 
 def display_records_airport():
@@ -13,7 +14,7 @@ def display_records_airport():
     from utils.utils import display_records
 
     # Fetch all airports from the database
-    airports = fetch_records(table=AIRPORT_TABLE_NAME)
+    airports = fetch_records(table=AIRPORT_TABLE_NAME, fields=AIRPORT_DISPLAY_FIELDS)
     print("\n")
 
     # Display the airports
@@ -67,7 +68,7 @@ def update_record_airport():
     from utils.utils import display_records
 
     # Fetch all airports from the database
-    airports = fetch_records(table=AIRPORT_TABLE_NAME)
+    airports = fetch_records(table=AIRPORT_TABLE_NAME, fields=AIRPORT_DISPLAY_FIELDS)
     display_records(airports)
 
     # Ask for the airport ID to update
@@ -104,7 +105,7 @@ def delete_record_airport():
     from utils.utils import display_records
 
     # Fetch all airports from the database
-    airports = fetch_records(table=AIRPORT_TABLE_NAME)
+    airports = fetch_records(table=AIRPORT_TABLE_NAME, fields=AIRPORT_DISPLAY_FIELDS)
 
     # Display the airports
     display_records(records=airports)
