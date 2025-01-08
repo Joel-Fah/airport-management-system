@@ -5,8 +5,7 @@ from utils.constants import DEFAULT_SLEEP_TIME
 from utils.db_utils import create_tables
 from utils.utils import display_menu
 from utils.logging_utils import register_user, login_user
-
-
+from services.service_menu import services_main_menu
 def initialise_system():
     """
     Initialises the project's database, ensuring the tables are created and ready to use upfront.
@@ -38,7 +37,7 @@ def main():
         elif user_action == 2:
             register_user()
         elif user_action == 3:
-            #  services_main_menu()
+            services_main_menu()
             print("\nThank you for using the Airport Management System. Goodbye!")
             break
         else:
